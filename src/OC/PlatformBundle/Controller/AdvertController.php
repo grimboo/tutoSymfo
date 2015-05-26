@@ -8,6 +8,7 @@
 
 namespace OC\PlatformBundle\Controller;
 
+use OC\PlatformBundle\Entity\Advert;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
@@ -65,14 +66,22 @@ class AdvertController extends Controller
 
     public function viewAction($id)
     {
-        $advert = array(
-            'title'   => 'Recherche développpeur Symfony2',
-            'id'      => $id,
-            'author'  => 'Alexandre',
-            'content' => 'Nous recherchons un développeur Symfony2 débutant sur Lyon. Blabla…',
-            'date'    => new \Datetime()
-        );
+        // On récupère le repository
+        $repository = $this->getDoctrine()
+            ->getManager()
+            ->getRepository('OCPlatformBundle:Advert')
+        ;
 
+        // On récupère l'entité correspondante à l'id $id
+        $advert = $repository->find($id);
+
+        // $advert est donc une instance de OC\PlatformBundle\Entity\Advert
+        // ou null si l'id $id  n'existe pas, d'où ce if :
+        if (null === $advert) {
+            throw new NotFoundHttpException("L'annonce d'id ".$id." n'existe pas.");
+        }
+
+        // Le render ne change pas, on passait avant un tableau, maintenant un objet
         return $this->render('OCPlatformBundle:Advert:view.html.twig', array(
             'advert' => $advert
         ));
@@ -105,13 +114,24 @@ class AdvertController extends Controller
 
     public function addAction(Request $request)
     {
-        // On récupère le service
-        $antispam = $this->container->get('oc_platform.antispam');
+       //Création de l'entité
+        $advert = new Advert();
+        $advert->setTitle('Recherche développeur Symfony2');
+        $advert->setAuthor('Jérémy Boin');
+        $advert->setContent('Nous recherchons un développeur Symfony2 débutant sur Lyon ...');
 
-        // Je pars du principe que $text contient le texte d'un message quelconque
-        $text = '...';
-        if ($antispam->isSpam($text)) {
-            throw new \Exception('Votre message a été détecté comme spam !');
+        //On récupère l'entityManager
+        $em = $this->getDoctrine()->getManager();
+
+        // Etape 1 - On "persiste" l'entité
+        $em->persist($advert);
+
+        // Etape 2 - On "flush" tout ce qui a été persisté avant
+        $em->flush();
+
+        if ($request->isMethod('POST')) {
+            $request->getSession()->getFlashBag()->add('notice', 'Annonce bien enregistrée.');
+            return $this->redirect($this->generateUrl('oc_platform_view', array('id' => $advert->getId())));
         }
 
         // Si on n'est pas en POST, alors on affiche le formulaire
