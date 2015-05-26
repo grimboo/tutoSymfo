@@ -14,7 +14,7 @@ class OCAntispam
     private $locale;
     private $minLength;
 
-    
+
     public function __construct(\Swift_Mailer $mailer, $locale, $minLength)
     {
         $this->mailer   =$mailer;
