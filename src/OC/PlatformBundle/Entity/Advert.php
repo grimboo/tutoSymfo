@@ -50,10 +50,14 @@ class Advert
     private $content;
 
     /**
+     * @ORM\OneToOne(targetEntity="OC\PlatformBundle\Entity\Image", cascade={"persist"})
+     */
+    private $image;
+
+    /**
      * @ORM\Column(name="published", type="boolean")
      */
     private $published = true;
-
 
 
 
@@ -196,5 +200,28 @@ class Advert
     public function getPublished()
     {
         return $this->published;
+    }
+
+    /**
+     * Set image
+     *
+     * @param \OC\PlatformBundle\Entity\Image $image
+     * @return Advert
+     */
+    public function setImage(\OC\PlatformBundle\Entity\Image $image = null)
+    {
+        $this->image = $image;
+
+        return $this;
+    }
+
+    /**
+     * Get image
+     *
+     * @return \OC\PlatformBundle\Entity\Image 
+     */
+    public function getImage()
+    {
+        return $this->image;
     }
 }
