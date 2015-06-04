@@ -68,6 +68,12 @@ class Advert
     private $published = true;
 
 
+    /**
+     * @ORM\OneToMany(targetEntity="OC\PlatformBundle\Entity\Application", mappedBy="advert")
+     */
+    private $applications;
+
+
 
 
 
@@ -78,6 +84,35 @@ class Advert
         $this->date = new \DateTime();
         $this->categories = new ArrayCollection();
     }
+
+
+
+
+
+
+
+    //**************  METHODES  *****************
+    public function addApplication(Application $application)
+    {
+        $this->applications[] = $application;
+
+        // On lie l'annonce à la candidature
+        $application->setAdvert($this);
+
+        return $this;
+    }
+
+    public function removeApplication(Application $application)
+    {
+        $this->applications->removeElement($application);
+
+        // Et si notre relation était facultative (nullable=true, ce qui n'est pas notre cas ici attention) :
+        // $application->setAdvert(null);
+    }
+
+
+
+
 
 
 
@@ -265,5 +300,38 @@ class Advert
     public function getCategories()
     {
         return $this->categories;
+    }
+
+    /**
+     * Add applications
+     *
+     * @param \OC\PlatformBundle\Entity\Application $applications
+     * @return Advert
+     */
+    public function addApplication(\OC\PlatformBundle\Entity\Application $applications)
+    {
+        $this->applications[] = $applications;
+
+        return $this;
+    }
+
+    /**
+     * Remove applications
+     *
+     * @param \OC\PlatformBundle\Entity\Application $applications
+     */
+    public function removeApplication(\OC\PlatformBundle\Entity\Application $applications)
+    {
+        $this->applications->removeElement($applications);
+    }
+
+    /**
+     * Get applications
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getApplications()
+    {
+        return $this->applications;
     }
 }
